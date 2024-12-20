@@ -1,0 +1,438 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Conversation {
+  id                   String              @id
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime
+  doctorId             String
+  patientId            String
+  homeServiceBookingId String?
+  onlineAppointmentId  String?
+  lastMessageAt        DateTime            @default(now())
+  lastMessageContent   String?
+  unreadCount          Int                 @default(0)
+  isActive             Boolean             @default(true)
+  deactivatedAt        DateTime?
+  deactivatedBy        String?
+  deactivationReason   String?
+  doctors              doctors             @relation(fields: [doctorId], references: [id])
+  HomeServiceBooking   HomeServiceBooking? @relation(fields: [homeServiceBookingId], references: [id])
+  OnlineAppointment    OnlineAppointment?  @relation(fields: [onlineAppointmentId], references: [id])
+  patients             patients            @relation(fields: [patientId], references: [id])
+  Message              Message[]
+  TypingIndicator      TypingIndicator[]
+
+  @@unique([doctorId, patientId, homeServiceBookingId])
+  @@unique([doctorId, patientId, onlineAppointmentId])
+  @@index([doctorId])
+  @@index([lastMessageAt])
+  @@index([patientId])
+}
+
+model DoctorVerification {
+  id              String             @id
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime
+  status          VerificationStatus @default(PENDING)
+  fullName        String
+  email           String             @unique
+  phoneNumber     String
+  cnic            String             @unique
+  pmcNumber       String             @unique
+  graduationYear  Int
+  specialization  String[]
+  expertise       String[]
+  experienceYears Int
+  medicalSchool   String
+  profilePhoto    String
+  degreeImage     String
+  pmcImage        String
+  cnicImage       String
+  doctorId        String             @unique
+  doctors         doctors            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId])
+}
+
+model HomeService {
+  id                        String                      @id
+  serviceId                 String                      @unique
+  isActive                  Boolean                     @default(false)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  Services                  Services                    @relation(fields: [serviceId], references: [id])
+  HomeServiceBooking        HomeServiceBooking[]
+  HomeServiceSlot           HomeServiceSlot[]
+  HomeServiceSpecialization HomeServiceSpecialization[]
+}
+
+model HomeServiceBooking {
+  id               String         @id
+  patientId        String
+  doctorId         String
+  homeServiceId    String
+  status           String         @default("pending")
+  scheduledDate    DateTime
+  dayOfWeek        String
+  startTime        String
+  endTime          String
+  totalAmount      Float
+  selectedServices Json
+  paymentMethod    String         @default("pending")
+  paymentStatus    String         @default("pending")
+  stripePaymentId  String?
+  patientDetails   Json
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime
+  Conversation     Conversation[]
+  doctors          doctors        @relation(fields: [doctorId], references: [id])
+  HomeService      HomeService    @relation(fields: [homeServiceId], references: [id])
+  patients         patients       @relation(fields: [patientId], references: [id])
+
+  @@index([doctorId])
+  @@index([homeServiceId])
+  @@index([patientId])
+}
+
+model HomeServiceSlot {
+  id            String      @id
+  homeServiceId String
+  dayOfWeek     DayOfWeek
+  startTime     String
+  endTime       String
+  isReserved    Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime
+  HomeService   HomeService @relation(fields: [homeServiceId], references: [id])
+}
+
+model HomeServiceSpecialization {
+  id            String             @id
+  homeServiceId String
+  type          SpecializationType
+  price         Float
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime
+  HomeService   HomeService        @relation(fields: [homeServiceId], references: [id])
+}
+
+model Message {
+  id             String        @id
+  conversationId String
+  senderId       String
+  senderRole     Role
+  content        String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  status         MessageStatus @default(SENT)
+  Conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  ReadReceipt    ReadReceipt[]
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model Notification {
+  id        String           @id
+  userId    String
+  userRole  Role
+  type      NotificationType
+  title     String
+  content   String
+  isRead    Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime
+
+  @@index([userId])
+}
+
+model OnlineAppointment {
+  id              String            @id
+  onlineServiceId String
+  doctorId        String
+  patientId       String
+  appointmentDate DateTime
+  startTime       String
+  endTime         String
+  appointmentType AppointmentType
+  stripePaymentId String?
+  visitType       VisitType
+  status          AppointmentStatus @default(PENDING)
+  amount          Float
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  Conversation    Conversation[]
+  OnlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id])
+  patients        patients          @relation(fields: [patientId], references: [id])
+
+  @@index([doctorId])
+  @@index([onlineServiceId])
+  @@index([patientId])
+}
+
+model OnlineService {
+  id                String              @id
+  doctorId          String              @unique
+  isActive          Boolean             @default(false)
+  fee               Float
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  OnlineAppointment OnlineAppointment[]
+  doctors           doctors             @relation(fields: [doctorId], references: [id])
+  OnlineServiceSlot OnlineServiceSlot[]
+  Services          Services[]
+}
+
+model OnlineServiceSlot {
+  id              String        @id
+  onlineServiceId String
+  dayOfWeek       DayOfWeek
+  startTime       String
+  endTime         String
+  isReserved      Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  OnlineService   OnlineService @relation(fields: [onlineServiceId], references: [id])
+
+  @@index([onlineServiceId])
+}
+
+model ReadReceipt {
+  id        String   @id
+  messageId String
+  userId    String
+  userRole  Role
+  readAt    DateTime @default(now())
+  Message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+}
+
+model Services {
+  id              String         @id
+  doctorId        String         @unique
+  onlineServiceId String?
+  HomeService     HomeService?
+  doctors         doctors        @relation(fields: [doctorId], references: [id])
+  OnlineService   OnlineService? @relation(fields: [onlineServiceId], references: [id])
+}
+
+model TypingIndicator {
+  id             String       @id
+  conversationId String
+  userId         String
+  userRole       Role
+  isTyping       Boolean      @default(false)
+  lastTypedAt    DateTime     @default(now())
+  Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+}
+
+model doctors {
+  id                 String               @id
+  title              String
+  name               String
+  email              String               @unique
+  phone              String               @unique
+  password           String
+  city               String
+  specialization     String
+  gender             Gender
+  emailVerified      DateTime?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  isVerifiedDoctor   Boolean              @default(false)
+  Conversation       Conversation[]
+  DoctorVerification DoctorVerification?
+  HomeServiceBooking HomeServiceBooking[]
+  OnlineService      OnlineService?
+  Services           Services?
+}
+
+model medicine_orders {
+  id              String        @id
+  medicines       String[]
+  prescriptionUrl String?
+  address         String
+  email           String
+  phoneNumber     String
+  patientName     String
+  pharmacyName    String?
+  amount          Float
+  serviceCharge   Float         @default(200)
+  totalAmount     Float
+  paymentMethod   PaymentMethod
+  orderStatus     OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  transactions    transactions?
+}
+
+model patient_medical_records {
+  id                    String     @id
+  firstName             String
+  lastName              String
+  dateOfBirth           DateTime
+  gender                Gender
+  email                 String
+  phoneNumber           String
+  medicalConditions     String[]   @default([])
+  allergies             String[]   @default([])
+  currentMedications    String[]   @default([])
+  height                Float?
+  weight                Float?
+  bloodType             BloodType?
+  bloodPressure         Json?
+  heartRate             Int?
+  medicalReportUrl      String?
+  emergencyContactName  String
+  emergencyContactPhone String
+  consentToStore        Boolean    @default(false)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime
+  patientId             String
+  patients              patients   @relation(fields: [patientId], references: [id])
+}
+
+model patients {
+  id                      String                    @id
+  name                    String
+  email                   String                    @unique
+  phone                   String                    @unique
+  password                String
+  city                    String
+  gender                  Gender
+  emailVerified           DateTime?
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime
+  Conversation            Conversation[]
+  HomeServiceBooking      HomeServiceBooking[]
+  OnlineAppointment       OnlineAppointment[]
+  patient_medical_records patient_medical_records[]
+}
+
+model transactions {
+  id              String          @id
+  amount          Float
+  paymentDate     DateTime        @default(now())
+  stripePaymentId String?
+  status          PaymentStatus
+  orderId         String          @unique
+  metadata        Json?
+  medicine_orders medicine_orders @relation(fields: [orderId], references: [id])
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum AppointmentType {
+  GENERAL_CHECKUP
+  FOLLOW_UP
+  PRESCRIPTION_RENEWAL
+  TEST_REVIEW
+  SPECIALIST_CONSULTATION
+}
+
+enum BloodType {
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  O_POSITIVE
+  O_NEGATIVE
+  AB_POSITIVE
+  AB_NEGATIVE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  BOOKING_UPDATE
+  PAYMENT_RECEIVED
+  CONSULTATION_REMINDER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum Role {
+  DOCTOR
+  PATIENT
+}
+
+enum SpecializationType {
+  GENERAL_CHECKUP
+  WOUND_DRESSING
+  PHYSICAL_THERAPY
+  ELDERLY_CARE
+  POST_SURGERY
+  EMERGENCY_CARE
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  UNDER_REVIEW
+}
+
+enum VisitType {
+  FIRST_TIME
+  FOLLOW_UP
+}
