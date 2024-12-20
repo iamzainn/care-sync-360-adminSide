@@ -310,22 +310,23 @@ model patient_medical_records {
 }
 
 model patients {
-  id                      String                    @id
-  name                    String
-  email                   String                    @unique
-  phone                   String                    @unique
-  password                String
-  city                    String
-  gender                  Gender
-  emailVerified           DateTime?
-  resetToken              String?
-  resetTokenExpiry        DateTime?
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime
-  Conversation            Conversation[]
-  HomeServiceBooking      HomeServiceBooking[]
-  OnlineAppointment       OnlineAppointment[]
-  patient_medical_records patient_medical_records[]
+  id                        String                      @id
+  name                      String
+  email                     String                      @unique
+  phone                     String                      @unique
+  password                  String
+  city                      String
+  gender                    Gender
+  emailVerified             DateTime?
+  resetToken                String?
+  resetTokenExpiry          DateTime?
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  Conversation              Conversation[]
+  HomeServiceBooking        HomeServiceBooking[]
+  OnlineAppointment         OnlineAppointment[]
+  emergency_patient_details emergency_patient_details[]
+  patient_medical_records   patient_medical_records[]
 }
 
 model transactions {
@@ -337,6 +338,17 @@ model transactions {
   orderId         String          @unique
   metadata        Json?
   medicine_orders medicine_orders @relation(fields: [orderId], references: [id])
+}
+
+model emergency_patient_details {
+  id          String   @id
+  phoneNumber String
+  patientId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  patients    patients @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
 }
 
 enum AppointmentStatus {
