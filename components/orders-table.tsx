@@ -232,7 +232,7 @@ function OrderActions({ order }: { order: MedicineOrderWithTransaction }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Update Order Status</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to update this order's status to{" "}
+              Are you sure you want to update this orders status to{" "}
               {selectedStatus && ORDER_STATUSES[selectedStatus as keyof typeof ORDER_STATUSES]}?
               This action cannot be undone.
             </AlertDialogDescription>

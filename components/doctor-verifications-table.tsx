@@ -224,7 +224,7 @@ function VerificationActions({ doctor }: { doctor: DoctorWithVerification }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Update Verification Status</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to mark this doctor's verification as{" "}
+              Are you sure you want to mark this doctors verification as{" "}
               {selectedStatus && VERIFICATION_STATUSES[selectedStatus as keyof typeof VERIFICATION_STATUSES]}?
               {selectedStatus === "APPROVED" && 
                 " This will allow the doctor to provide services on the platform."}

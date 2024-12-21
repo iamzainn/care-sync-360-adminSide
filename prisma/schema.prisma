@@ -327,6 +327,7 @@ model patients {
   OnlineAppointment         OnlineAppointment[]
   emergency_patient_details emergency_patient_details[]
   patient_medical_records   patient_medical_records[]
+  test_bookings             test_bookings[]
 }
 
 model transactions {
@@ -349,6 +350,31 @@ model emergency_patient_details {
   patients    patients @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
+}
+
+model test_bookings {
+  id              String        @id
+  patientId       String
+  bookingDate     DateTime      @default(now())
+  status          BookingStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod
+  amount          Float
+  serviceCharge   Float         @default(100)
+  totalAmount     Float
+  address         String
+  phoneNumber     String
+  stripePaymentId String?
+  paymentDate     DateTime?
+  bookedTests     Json[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  patients        patients      @relation(fields: [patientId], references: [id])
+
+  @@index([createdAt])
+  @@index([patientId])
+  @@index([paymentStatus])
+  @@index([status])
 }
 
 enum AppointmentStatus {
@@ -447,4 +473,12 @@ enum VerificationStatus {
 enum VisitType {
   FIRST_TIME
   FOLLOW_UP
+}
+
+enum BookingStatus {
+  PENDING
+  SAMPLE_COLLECTED
+  PROCESSING
+  COMPLETED
+  CANCELLED
 }
