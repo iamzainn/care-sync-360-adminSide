@@ -22,10 +22,10 @@ model Conversation {
   deactivatedAt        DateTime?
   deactivatedBy        String?
   deactivationReason   String?
-  doctors              doctors             @relation(fields: [doctorId], references: [id])
+  doctors              doctors             @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   HomeServiceBooking   HomeServiceBooking? @relation(fields: [homeServiceBookingId], references: [id])
   OnlineAppointment    OnlineAppointment?  @relation(fields: [onlineAppointmentId], references: [id])
-  patients             patients            @relation(fields: [patientId], references: [id])
+  patients             patients            @relation(fields: [patientId], references: [id], onDelete: Cascade)
   Message              Message[]
   TypingIndicator      TypingIndicator[]
 
@@ -67,7 +67,7 @@ model HomeService {
   isActive                  Boolean                     @default(false)
   createdAt                 DateTime                    @default(now())
   updatedAt                 DateTime
-  Services                  Services                    @relation(fields: [serviceId], references: [id])
+  Services                  Services                    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   HomeServiceBooking        HomeServiceBooking[]
   HomeServiceSlot           HomeServiceSlot[]
   HomeServiceSpecialization HomeServiceSpecialization[]
@@ -92,9 +92,9 @@ model HomeServiceBooking {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime
   Conversation     Conversation[]
-  doctors          doctors        @relation(fields: [doctorId], references: [id])
-  HomeService      HomeService    @relation(fields: [homeServiceId], references: [id])
-  patients         patients       @relation(fields: [patientId], references: [id])
+  doctors          doctors        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  HomeService      HomeService    @relation(fields: [homeServiceId], references: [id], onDelete: Cascade)
+  patients         patients       @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([doctorId])
   @@index([homeServiceId])
@@ -110,7 +110,7 @@ model HomeServiceSlot {
   isReserved    Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime
-  HomeService   HomeService @relation(fields: [homeServiceId], references: [id])
+  HomeService   HomeService @relation(fields: [homeServiceId], references: [id], onDelete: Cascade)
 }
 
 model HomeServiceSpecialization {
@@ -120,7 +120,7 @@ model HomeServiceSpecialization {
   price         Float
   createdAt     DateTime           @default(now())
   updatedAt     DateTime
-  HomeService   HomeService        @relation(fields: [homeServiceId], references: [id])
+  HomeService   HomeService        @relation(fields: [homeServiceId], references: [id], onDelete: Cascade)
 }
 
 model Message {
@@ -170,8 +170,8 @@ model OnlineAppointment {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime
   Conversation    Conversation[]
-  OnlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id])
-  patients        patients          @relation(fields: [patientId], references: [id])
+  OnlineService   OnlineService     @relation(fields: [onlineServiceId], references: [id], onDelete: Cascade)
+  patients        patients          @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([doctorId])
   @@index([onlineServiceId])
@@ -186,7 +186,7 @@ model OnlineService {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
   OnlineAppointment OnlineAppointment[]
-  doctors           doctors             @relation(fields: [doctorId], references: [id])
+  doctors           doctors             @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   OnlineServiceSlot OnlineServiceSlot[]
   Services          Services[]
 }
@@ -200,7 +200,7 @@ model OnlineServiceSlot {
   isReserved      Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime
-  OnlineService   OnlineService @relation(fields: [onlineServiceId], references: [id])
+  OnlineService   OnlineService @relation(fields: [onlineServiceId], references: [id], onDelete: Cascade)
 
   @@index([onlineServiceId])
 }
@@ -223,7 +223,7 @@ model Services {
   doctorId        String         @unique
   onlineServiceId String?
   HomeService     HomeService?
-  doctors         doctors        @relation(fields: [doctorId], references: [id])
+  doctors         doctors        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   OnlineService   OnlineService? @relation(fields: [onlineServiceId], references: [id])
 }
 
@@ -306,7 +306,7 @@ model patient_medical_records {
   createdAt             DateTime   @default(now())
   updatedAt             DateTime
   patientId             String
-  patients              patients   @relation(fields: [patientId], references: [id])
+  patients              patients   @relation(fields: [patientId], references: [id], onDelete: Cascade)
 }
 
 model patients {
@@ -327,6 +327,7 @@ model patients {
   OnlineAppointment         OnlineAppointment[]
   emergency_patient_details emergency_patient_details[]
   patient_medical_records   patient_medical_records[]
+  specialized_treatments    specialized_treatments[]
   test_bookings             test_bookings[]
 }
 
@@ -338,7 +339,7 @@ model transactions {
   status          PaymentStatus
   orderId         String          @unique
   metadata        Json?
-  medicine_orders medicine_orders @relation(fields: [orderId], references: [id])
+  medicine_orders medicine_orders @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model emergency_patient_details {
@@ -369,11 +370,91 @@ model test_bookings {
   bookedTests     Json[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime
-  patients        patients      @relation(fields: [patientId], references: [id])
+  patients        patients      @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@index([patientId])
   @@index([paymentStatus])
+  @@index([status])
+}
+
+model SpecializedTreatmentSlot {
+  id                     String                  @id
+  specializedTreatmentId String?
+  dayOfWeek              DayOfWeek
+  startTime              String
+  endTime                String
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime
+  specialized_treatments specialized_treatments? @relation(fields: [specializedTreatmentId], references: [id], onDelete: Cascade)
+}
+
+model nurses {
+  id                     String                   @id
+  name                   String
+  email                  String                   @unique
+  phone                  String                   @unique
+  password               String
+  city                   String
+  gender                 Gender
+  emailVerified          DateTime?
+  resetToken             String?
+  resetTokenExpiry       DateTime?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  specialized_services   specialized_services?
+  specialized_treatments specialized_treatments[]
+}
+
+model specialized_service_slots {
+  id                   String               @id
+  specializedServiceId String
+  dayOfWeek            DayOfWeek
+  startTime            String
+  endTime              String
+  isReserved           Boolean              @default(false)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime
+  specialized_services specialized_services @relation(fields: [specializedServiceId], references: [id], onDelete: Cascade)
+
+  @@index([specializedServiceId])
+}
+
+model specialized_services {
+  id                        String                      @id
+  nurseId                   String                      @unique
+  isActive                  Boolean                     @default(false)
+  fee                       Float                       @default(1500)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  specialized_service_slots specialized_service_slots[]
+  nurses                    nurses                      @relation(fields: [nurseId], references: [id], onDelete: Cascade)
+}
+
+model specialized_treatments {
+  id                       String                     @id
+  patientId                String
+  nurseId                  String
+  status                   SpecializedTreatmentStatus @default(PENDING)
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime
+  scheduledDate            DateTime?
+  paymentStatus            PaymentStatus              @default(PENDING)
+  paymentMethod            PaymentMethod?
+  stripePaymentId          String?
+  amount                   Float?
+  serviceCharge            Float                      @default(500)
+  totalAmount              Float?
+  patientDetails           Json?
+  serviceSlotId            String?
+  numberOfDays             Int                        @default(1)
+  SpecializedTreatmentSlot SpecializedTreatmentSlot[]
+  nurses                   nurses                     @relation(fields: [nurseId], references: [id], onDelete: Cascade)
+  patients                 patients                   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([nurseId])
+  @@index([patientId])
   @@index([status])
 }
 
@@ -452,6 +533,7 @@ enum PaymentStatus {
 enum Role {
   DOCTOR
   PATIENT
+  NURSE
 }
 
 enum SpecializationType {
@@ -481,4 +563,11 @@ enum BookingStatus {
   PROCESSING
   COMPLETED
   CANCELLED
+}
+
+enum SpecializedTreatmentStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
 }

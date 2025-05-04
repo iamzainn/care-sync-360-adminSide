@@ -33,7 +33,7 @@ const routes = [
   },
   {
     label: "Emergency Contacts",
-    href: "/admin/emergency-contacts",
+    href: "/admin/emergency-patient-contact",
     icon: PhoneCall
   }
 ]
