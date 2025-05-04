@@ -2,8 +2,10 @@
 import { Metadata } from "next"
 import { db } from "@/lib/db"
 import { EmergencyContactsTable } from "@/components/emergency-contacts-table"
-import { json } from "stream/consumers"
+
 // import { EmergencyContactsTable } from "@/components/emergency-contacts-table"
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: "Emergency Patient Contacts",

@@ -4,6 +4,9 @@ import { db } from "@/lib/db"
 import { DoctorVerificationsTable } from "@/components/doctor-verifications-table"
 
 
+export const dynamic = 'force-dynamic'
+
+
 export const metadata: Metadata = {
   title: "Doctor Verifications",
   description: "Manage and review doctor verification requests",

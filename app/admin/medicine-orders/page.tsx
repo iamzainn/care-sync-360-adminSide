@@ -4,6 +4,8 @@ import { db } from "@/lib/db"
 import { OrdersTable } from "@/components/orders-table"
 
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: "Medicine Orders",
   description: "Manage and view all medicine orders",

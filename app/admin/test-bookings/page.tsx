@@ -4,6 +4,7 @@ import { Metadata } from "next"
 import { db } from "@/lib/db"
 import { TestBookingsTable } from "@/components/test-bookings/test-bookings-table"
 
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: "Lab Test Bookings",
   description: "Manage and view all lab test bookings"
