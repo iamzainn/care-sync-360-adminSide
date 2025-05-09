@@ -1,7 +1,6 @@
-
 // components/admin/dashboard-metrics.tsx
 import { Card } from "@/components/ui/card"
-import {  TestTubes, Pill, UserCheck, PhoneCall } from "lucide-react"
+import { TestTubes, Pill, UserCheck, PhoneCall, UserPlus } from "lucide-react"
 import { DashboardMetrics as Metrics } from "./types/dashboard"
 
 const MetricCard = ({ 
@@ -33,7 +32,7 @@ export function DashboardMetrics({ metrics }: { metrics: Metrics }) {
   return (
     <div>
       <h2 className="text-lg font-medium mb-4">Overview</h2>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <MetricCard
           title="Test Bookings"
           value={metrics.totalMonthlyBookings}
@@ -47,10 +46,16 @@ export function DashboardMetrics({ metrics }: { metrics: Metrics }) {
           description="Total orders this month"
         />
         <MetricCard
-          title="Pending Verifications"
-          value={metrics.pendingVerifications}
+          title="Doctor Verifications"
+          value={metrics.pendingDoctorVerifications}
           icon={UserCheck}
           description="Doctors awaiting verification"
+        />
+        <MetricCard
+          title="Nurse Verifications"
+          value={metrics.pendingNurseVerifications}
+          icon={UserPlus}
+          description="Nurses awaiting verification"
         />
         <MetricCard
           title="Emergency Contacts"

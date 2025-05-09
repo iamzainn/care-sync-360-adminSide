@@ -1,9 +1,9 @@
-
 // types/dashboard.ts
 export interface DashboardMetrics {
   totalMonthlyBookings: number
   totalMedicineOrders: number
-  pendingVerifications: number
+  pendingDoctorVerifications: number
+  pendingNurseVerifications: number
   emergencyContacts: number
 }
 
@@ -27,12 +27,21 @@ export interface RecentActivities {
       stripePaymentId: string | null
     }
   }[]
-  recentVerifications: {
+  recentDoctorVerifications: {
     id: string
     fullName: string
     email: string
     status: string
     createdAt: Date
+  }[]
+  recentNurseVerifications: {
+    id: string
+    status: string
+    createdAt: Date
+    nurses: {
+      name: string
+      email: string
+    }
   }[]
   recentEmergencyContacts: {
     id: string

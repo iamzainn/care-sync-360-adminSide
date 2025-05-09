@@ -402,6 +402,8 @@ model nurses {
   resetTokenExpiry       DateTime?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
+  isVerifiedNurse        Boolean                  @default(false)
+  nurse_verifications    nurse_verifications?
   specialized_services   specialized_services?
   specialized_treatments specialized_treatments[]
 }
@@ -456,6 +458,18 @@ model specialized_treatments {
   @@index([nurseId])
   @@index([patientId])
   @@index([status])
+}
+
+model nurse_verifications {
+  id        String             @id
+  createdAt DateTime           @default(now())
+  updatedAt DateTime
+  status    VerificationStatus @default(PENDING)
+  services  String[]
+  nurseId   String             @unique
+  nurses    nurses             @relation(fields: [nurseId], references: [id], onDelete: Cascade)
+
+  @@index([nurseId])
 }
 
 enum AppointmentStatus {

@@ -12,7 +12,8 @@ export async function getDashboardMetrics() {
     const [
       totalMonthlyBookings,
       totalMedicineOrders,
-      pendingVerifications,
+      pendingDoctorVerifications,
+      pendingNurseVerifications,
       emergencyContacts
     ] = await Promise.all([
       // Test bookings this month
@@ -39,6 +40,12 @@ export async function getDashboardMetrics() {
           status: "PENDING"
         }
       }),
+      // Pending nurse verifications
+      db.nurse_verifications.count({
+        where: {
+          status: "PENDING"
+        }
+      }),
       // Emergency contacts count
       db.emergency_patient_details.count()
     ])
@@ -46,7 +53,8 @@ export async function getDashboardMetrics() {
     return {
       totalMonthlyBookings,
       totalMedicineOrders,
-      pendingVerifications,
+      pendingDoctorVerifications,
+      pendingNurseVerifications,
       emergencyContacts
     }
   } catch (error) {
@@ -60,7 +68,8 @@ export async function getRecentActivities() {
     const [
       recentBookings,
       recentOrders,
-      recentVerifications,
+      recentDoctorVerifications,
+      recentNurseVerifications,
       recentEmergencyContacts
     ] = await Promise.all([
       // Recent test bookings
@@ -105,6 +114,22 @@ export async function getRecentActivities() {
           createdAt: true
         }
       }),
+      // Recent nurse verifications
+      db.nurse_verifications.findMany({
+        take: 5,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          nurses: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        }
+      }),
       // Recent emergency contacts
       db.emergency_patient_details.findMany({
         take: 5,
@@ -123,7 +148,8 @@ export async function getRecentActivities() {
     return {
       recentBookings,
       recentOrders,
-      recentVerifications,
+      recentDoctorVerifications,
+      recentNurseVerifications,
       recentEmergencyContacts
     }
   } catch (error) {

@@ -63,13 +63,32 @@ export function RecentActivities({ activities }: { activities: Activities }) {
 
       {/* Doctor Verifications */}
       <Card className="p-6">
-        <h3 className="font-medium mb-4">Recent Verification Requests</h3>
+        <h3 className="font-medium mb-4">Recent Doctor Verifications</h3>
         <div className="space-y-4">
-          {activities.recentVerifications.map((verification) => (
+          {activities.recentDoctorVerifications.map((verification) => (
             <div key={verification.id} className="flex items-start justify-between">
               <div>
                 <p className="font-medium">{verification.fullName}</p>
                 <p className="text-sm text-muted-foreground">{verification.email}</p>
+                <StatusBadge status={verification.status} />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {format(new Date(verification.createdAt), 'MMM dd, yyyy')}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Nurse Verifications */}
+      <Card className="p-6">
+        <h3 className="font-medium mb-4">Recent Nurse Verifications</h3>
+        <div className="space-y-4">
+          {activities.recentNurseVerifications.map((verification) => (
+            <div key={verification.id} className="flex items-start justify-between">
+              <div>
+                <p className="font-medium">{verification.nurses.name}</p>
+                <p className="text-sm text-muted-foreground">{verification.nurses.email}</p>
                 <StatusBadge status={verification.status} />
               </div>
               <p className="text-sm text-muted-foreground">

@@ -1,4 +1,3 @@
-
 // components/admin/navigation.tsx
 "use client"
 
@@ -8,7 +7,7 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
-import { Menu, Activity, TestTubes, Pill, UserCog, PhoneCall } from "lucide-react"
+import { Menu, Activity, TestTubes, Pill, UserCog, PhoneCall, UserPlus } from "lucide-react"
 
 const routes = [
   {
@@ -30,6 +29,11 @@ const routes = [
     label: "Doctor Verifications",
     href: "/admin/doctor-verifications",
     icon: UserCog
+  },
+  {
+    label: "Nurse Verifications",
+    href: "/admin/nurse-verifications",
+    icon: UserPlus
   },
   {
     label: "Emergency Contacts",
